@@ -6,6 +6,9 @@ const int window_height = 720;
 const int ball_width = 15;
 const int ball_height = 15;
 
+const int paddle_width = 10;
+const int paddle_height = 125;
+
 class Vector2
 {
     public:
@@ -58,6 +61,30 @@ class Ball
         }
 };
 
+class Paddle
+{
+    public:
+        Vector2 position;
+        SDL_Rect rect{};
+
+        Paddle(Vector2 position)
+        {
+            this->position = position;
+            
+            rect.x = static_cast<int>(position.x);
+            rect.y = static_cast<int>(position.y);
+            rect.w = paddle_width;
+            rect.h = paddle_height;
+        }
+
+        void draw(SDL_Renderer* renderer)
+        {
+            rect.y = static_cast<int>(position.y);
+
+            SDL_RenderFillRect(renderer, &rect);
+        }
+};
+
 int main()
 {
     SDL_Init(SDL_INIT_VIDEO);
@@ -89,9 +116,18 @@ int main()
 
             //render:
 
+            //ball and paddles initialization
             Ball ball(
                 Vector2((window_width/2.0f) - (ball_width/2.0f),
                 (window_height/2.0f) - (ball_height/2.0f))
+            );
+
+            Paddle paddle1(
+                Vector2(50.0f, (window_height/2.0f) - (paddle_height/2.0f))
+            );
+
+            Paddle paddle2(
+                Vector2((window_width - 50.0f), (window_height/2.0f) - (paddle_height/2.0f))
             );
 
             SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -103,6 +139,8 @@ int main()
             }
 
             ball.draw(renderer);
+            paddle1.draw(renderer);
+            paddle2.draw(renderer);
 
             SDL_RenderPresent(renderer);
         }
