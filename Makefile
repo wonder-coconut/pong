@@ -22,6 +22,7 @@ install : pong-ramanathan $(ASSETS)
 
 uninstall : 
 		rm -rf $(DESTDIR)$(PREFIX)/bin/pong-ramanathan
+		rm -rf $(DESTDIR)$(PREFIX)/lib/pong-ramanathan
 
 clean :
 		rm -rf pong-ramanathan
