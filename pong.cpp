@@ -202,6 +202,20 @@ class PlayerScore
             SDL_DestroyTexture(texture);
         }
 
+        void setScore(int score)
+        {
+            SDL_FreeSurface(surface);
+            SDL_DestroyTexture(texture);
+
+            surface = TTF_RenderText_Solid(font, std::to_string(score).c_str(), {0xFF ,0xFF ,0xFF ,0xFF});
+            texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+            int width,height;
+            SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
+            rect.w = width;
+            rect.h = height;
+        }
+
         void draw()
         {
             SDL_RenderCopy(renderer, texture, nullptr, &rect);
@@ -317,6 +331,9 @@ int main()
         //frame time initialization
         float frameTime = 0.0f;
 
+        int p1Score,p2Score;
+        p1Score = p2Score = 0;
+
         //run until exit
         while(!exit)
         {
@@ -420,7 +437,14 @@ int main()
 
             else if(contact = checkWallCollision(ball);
                 contact.type != CollisionType::None)
+            {
                 ball.collideWithWall(contact);
+
+                if(contact.type == CollisionType::Left)
+                    p2ScoreText.setScore(++p2Score);
+                else if(contact.type == CollisionType::Right)
+                    p1ScoreText.setScore(++p1Score);
+            }
         }
     }
 
