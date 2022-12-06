@@ -1,6 +1,7 @@
 #include <chrono>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <unistd.h>
 
@@ -299,6 +300,15 @@ int main()
     SDL_Window* window = SDL_CreateWindow("Pong", 0, 0, window_width, window_height, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 
+    //audio initialization
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+    Mix_Chunk* wallHitSound = Mix_LoadWAV("wallhit.wav");
+    Mix_Chunk* paddleHitSound = Mix_LoadWAV("paddlehit.wav");
+
+    //font initialization
+    TTF_Init();
+    TTF_Font* scoreFont = TTF_OpenFont("SevenSegment.ttf", 69);
+
     //ball and paddles initialization
     Ball ball(
         Vector2((window_width/2.0f) - (ball_width/2.0f),
@@ -315,10 +325,6 @@ int main()
         Vector2((window_width - 50.0f), (window_height/2.0f) - (paddle_height/2.0f)),
         Vector2(0.0f, 0.0f)
     );
-
-    //font initialization
-    TTF_Init();
-    TTF_Font* scoreFont = TTF_OpenFont("SevenSegment.ttf", 69);
 
     //player score initialization
     PlayerScore p1ScoreText(Vector2(window_width/4, 20), renderer, scoreFont);
@@ -429,16 +435,23 @@ int main()
             //collision detection
             if(Contact contact = checkPaddleCollision(ball, paddle1);
                 contact.type != CollisionType::None)
+            {
                 ball.collideWithPaddle(contact);
+                Mix_PlayChannel(-1, paddleHitSound, 0);
+            }
 
             else if(contact = checkPaddleCollision(ball, paddle2);
                 contact.type != CollisionType::None)
+            {
                 ball.collideWithPaddle(contact);
+                Mix_PlayChannel(-1, paddleHitSound, 0);
+            }
 
             else if(contact = checkWallCollision(ball);
                 contact.type != CollisionType::None)
             {
                 ball.collideWithWall(contact);
+                Mix_PlayChannel(-1, wallHitSound, 0);
 
                 if(contact.type == CollisionType::Left)
                     p2ScoreText.setScore(++p2Score);
@@ -449,9 +462,13 @@ int main()
     }
 
     //cleanup
+    Mix_FreeChunk(wallHitSound);
+    Mix_FreeChunk(paddleHitSound);
+    TTF_CloseFont(scoreFont);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    TTF_CloseFont(scoreFont);
+    Mix_Quit();
+    TTF_Quit();
     SDL_Quit();
 
     return 0;
