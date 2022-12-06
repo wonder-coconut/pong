@@ -12,7 +12,8 @@ const int ball_height = 15;
 const int paddle_width = 10;
 const int paddle_height = 125;
 
-const float paddle_speed = 1.0f;
+const float paddle_speed = 0.5f;
+const float ball_speed = 0.5f;
 
 enum Buttons
 {
@@ -57,16 +58,23 @@ class Ball
 {
     public:
         Vector2 position;
+        Vector2 velocity;
         SDL_Rect rect{};
 
-        Ball(Vector2 position)
+        Ball(Vector2 position, Vector2 velocity)
         {
             this->position = position;
+            this->velocity = velocity;
 
             rect.x = static_cast<int>(position.x);
             rect.y = static_cast<int>(position.y);
             rect.w = ball_width;
             rect.h = ball_height;
+        }
+
+        void update(float frameTime)
+        {
+            position += velocity * frameTime;
         }
 
         void draw(SDL_Renderer* renderer)
@@ -164,7 +172,8 @@ int main()
     //ball and paddles initialization
     Ball ball(
         Vector2((window_width/2.0f) - (ball_width/2.0f),
-        (window_height/2.0f) - (ball_height/2.0f))
+        (window_height/2.0f) - (ball_height/2.0f)),
+        Vector2(ball_speed, 0.0f)
     );
 
     Paddle paddle1(
@@ -280,6 +289,9 @@ int main()
             //paddle velocity update
             paddle1.update(frameTime);
             paddle2.update(frameTime);
+
+            //ball velocity update
+            ball.update(frameTime);
         }
     }
 
