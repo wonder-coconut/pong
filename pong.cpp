@@ -161,6 +161,20 @@ class PlayerScore
 
 };
 
+bool CheckPaddleCollision(Ball const& ball, Paddle const& paddle)
+{
+    if(ball.position.x >= (paddle.position.x + paddle_width)) //left of ball > right of paddle
+        return false;
+    if((ball.position.x + ball_width) <= paddle.position.x) //right of ball < left of paddle
+        return false;
+    if(ball.position.y >= (paddle.position.y + paddle_height)) //top of ball > bottom of paddle
+        return false;
+    if((ball.position.y + ball_height) <= paddle.position.y) //bottom of ball < top of paddle
+        return false;
+    
+    return true;
+}
+
 int main()
 {
     //video and rendering component initialization
@@ -292,6 +306,9 @@ int main()
 
             //ball velocity update
             ball.update(frameTime);
+
+            if(CheckPaddleCollision(ball, paddle1) || CheckPaddleCollision(ball, paddle2))
+                ball.velocity.x = -ball.velocity.x;
         }
     }
 
