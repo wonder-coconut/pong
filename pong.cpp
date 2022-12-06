@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
+#include <unistd.h>
 
 const int window_width = 1280;
 const int window_height = 720;
@@ -28,7 +29,9 @@ enum class CollisionType
     None,
     Top,
     Middle,
-    Bottom
+    Bottom,
+    Left,
+    Right
 };
 
 struct Contact
@@ -91,15 +94,35 @@ class Ball
             position += velocity * frameTime;
         }
 
-        void CollideWithPaddle(Contact const& contact)
+        void collideWithPaddle(Contact const& contact)
         {
             position.x += contact.penetration;
             velocity.x = -velocity.x;
 
-            if(contact.type == CollisionType::Top)
+            if(contact.type == CollisionType::Top) //TODO continuous direction change instead of top,middle,bottom
                 velocity.y = -0.75f * ball_speed;
             else if(contact.type == CollisionType::Bottom)
                 velocity.y = 0.75 * ball_speed;
+        }
+
+        void collideWithWall(Contact const& contact)
+        {
+            if(contact.type == CollisionType::Top || contact.type == CollisionType::Bottom)
+            {
+                position.y += contact.penetration;
+                velocity.y = -velocity.y;
+            }
+            else if(contact.type == CollisionType::Left || contact.type == CollisionType::Right)
+            {
+                sleep(1);
+                position.x = (window_width / 2.0f) - (ball_width / 2.0f);//ball reset
+                position.y = (window_height / 2.0f) - (ball_height / 2.0f);
+                if(contact.type == CollisionType::Left)
+                    velocity.x = ball_speed;
+                else
+                    velocity.x = -ball_speed;
+                velocity.y = 0.75f * ball_speed;
+            }
         }
 
         void draw(SDL_Renderer* renderer)
@@ -186,9 +209,8 @@ class PlayerScore
 
 };
 
-Contact CheckPaddleCollision(Ball const& ball, Paddle const& paddle)
+Contact checkPaddleCollision(Ball const& ball, Paddle const& paddle)
 {
-
 	float ballLeft = ball.position.x;
 	float ballRight = ball.position.x + ball_width;
 	float ballTop = ball.position.y;
@@ -227,6 +249,33 @@ Contact CheckPaddleCollision(Ball const& ball, Paddle const& paddle)
 
     return contact;
 }
+
+Contact checkWallCollision(Ball const& ball)
+{
+	float ballLeft = ball.position.x;
+	float ballRight = ball.position.x + ball_width;
+	float ballTop = ball.position.y;
+	float ballBottom = ball.position.y + ball_height;
+
+    Contact contact{};
+
+    if(ballLeft < 0.0f)
+        contact.type = CollisionType::Left;
+    else if(ballRight > window_width)
+        contact.type = CollisionType::Right;
+    else if(ballTop < 0.0f)
+    {
+        contact.type = CollisionType::Top;
+        contact.penetration = -ballTop;
+    }
+    else if(ballBottom > window_height)
+    {
+        contact.type = CollisionType::Bottom;
+        contact.penetration = window_height - ballBottom;
+    }
+
+    return contact;
+} 
 
 int main()
 {
@@ -361,15 +410,17 @@ int main()
             ball.update(frameTime);
 
             //collision detection
-            Contact contact = CheckPaddleCollision(ball, paddle1);
-            if(contact.type != CollisionType::None)
-                ball.CollideWithPaddle(contact);
-            else
-            {
-                contact = CheckPaddleCollision(ball, paddle2);
-                if(contact.type != CollisionType::None)
-                    ball.CollideWithPaddle(contact);
-            }
+            if(Contact contact = checkPaddleCollision(ball, paddle1);
+                contact.type != CollisionType::None)
+                ball.collideWithPaddle(contact);
+
+            else if(contact = checkPaddleCollision(ball, paddle2);
+                contact.type != CollisionType::None)
+                ball.collideWithPaddle(contact);
+
+            else if(contact = checkWallCollision(ball);
+                contact.type != CollisionType::None)
+                ball.collideWithWall(contact);
         }
     }
 
