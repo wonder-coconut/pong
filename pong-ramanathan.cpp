@@ -1,9 +1,9 @@
 #include <chrono>
+#include <string>
+#include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include <iostream>
-#include <unistd.h>
 
 const int window_width = 1280;
 const int window_height = 720;
@@ -302,12 +302,12 @@ int main()
 
     //audio initialization
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-    Mix_Chunk* wallHitSound = Mix_LoadWAV("wallhit.wav");
-    Mix_Chunk* paddleHitSound = Mix_LoadWAV("paddlehit.wav");
+    Mix_Chunk* wallHitSound = Mix_LoadWAV("/usr/lib/pong-ramanathan/wallhit.wav");
+    Mix_Chunk* paddleHitSound = Mix_LoadWAV("/usr/lib/pong-ramanathan/paddlehit.wav");
 
     //font initialization
     TTF_Init();
-    TTF_Font* scoreFont = TTF_OpenFont("SevenSegment.ttf", 69);
+    TTF_Font* scoreFont = TTF_OpenFont("/usr/lib/pong-ramanathan/SevenSegment.ttf", 69);
 
     //ball and paddles initialization
     Ball ball(

@@ -1,22 +1,27 @@
 include config.mk
 
-OBJECTS = pong_ramanathan.o
+OBJECTS = pong-ramanathan.o
+ASSETS = paddlehit.wav wallhit.wav SevenSegment.ttf
 
-all : pong_ramanathan
+all : pong-ramanathan
 
-pong_ramanathan.o :
-		$(CC) $(CFLAGS) -c pong_ramanathan.cpp
+pong-ramanathan.o :
+		$(CC) $(CFLAGS) -c pong-ramanathan.cpp
 
-pong_ramanathan :	$(OBJECTS)
-		$(CC) $(CFLAGS) $(RELROFLAGS) $(OBJECTS) -o pong_ramanathan $(LDFLAGS)
+pong-ramanathan :	$(OBJECTS)
+		$(CC) $(CFLAGS) $(RELROFLAGS) $(OBJECTS) -o pong-ramanathan $(LDFLAGS)
 
-install : pong_ramanathan
+install : pong-ramanathan $(ASSETS)
 		mkdir -p $(DESTDIR)$(PREFIX)/bin
-		cp -f pong_ramanathan $(DESTDIR)$(PREFIX)/bin
-		chmod 755 $(DESTDIR)$(PREFIX)/bin/pong_ramanathan
+		mkdir -p $(DESTDIR)$(PREFIX)/lib/pong-ramanathan
+		cp -f paddlehit.wav $(DESTDIR)$(PREFIX)/lib/pong-ramanathan
+		cp -f wallhit.wav $(DESTDIR)$(PREFIX)/lib/pong-ramanathan
+		cp -f SevenSegment.ttf $(DESTDIR)$(PREFIX)/lib/pong-ramanathan
+		cp -f pong-ramanathan $(DESTDIR)$(PREFIX)/bin
+		chmod 755 $(DESTDIR)$(PREFIX)/bin/pong-ramanathan
 
 uninstall : 
-		rm -rf $(DESTDIR)$(PREFIX)/bin/pong_ramanathan
+		rm -rf $(DESTDIR)$(PREFIX)/bin/pong-ramanathan
 
 clean :
-		rm -rf pong_ramanathan
+		rm -rf pong-ramanathan
